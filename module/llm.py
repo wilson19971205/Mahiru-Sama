@@ -2,31 +2,39 @@ from llama_cpp import Llama
 from llama_cpp.llama_chat_format import Qwen25VLChatHandler
 
 
-class Model_Core:
-    def __init__(
-        self, 
-        model_path, 
-        mmproj_path, 
-        n_ctx=2048, 
-        n_gpu_layers=-1,
-    ) -> None:
+class LLM_Core:
+    def __init__(self, config) -> None:
         
-        # ------------------
-        # Initializing Model
-        # ------------------
+        # ------------
+        # Initializing
+        # ------------
+
+        self.config = config
+        self.model_path = getattr(
+            config, 
+            "MODEL_PATH", 
+            "./module/llm_model/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+        )
+        self.mmproj_path = getattr(
+            config, 
+            "MMPROJ_PATH", 
+            "./module/llm_model/mmproj-Qwen3VL-8B-Instruct-F16.gguf",
+        )
+        self.n_ctx = getattr(config, "LLM_N_CTX", 2048)
+        self.n_gpu_layers = getattr(config, "LLM_N_GPU_LAYERS", -1)
         
         # Load Vision Model
         self.chat_handler = Qwen25VLChatHandler(
-            clip_model_path=mmproj_path,
+            clip_model_path=self.mmproj_path,
             verbose=False,
         )
 
         # Load LLM
         self.llm = Llama(
-            model_path=model_path,
+            model_path=self.model_path,
             chat_handler=self.chat_handler,
-            n_ctx=n_ctx,
-            n_gpu_layers=n_gpu_layers,
+            n_ctx=self.n_ctx,
+            n_gpu_layers=self.n_gpu_layers,
             verbose=False,
         )
 
